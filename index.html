@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BNF SMP</title>
+
+<meta name="description" content="Join Barney & Friends SMP - A whitelist-only survival Minecraft server.">
+
+<meta property="og:title" content="Barney & Friends SMP">
+<meta property="og:description" content="Whitelist-only Minecraft SMP. Join our community.">
+<meta property="og:image" content="https://bnfsmp.duckdns.org/preview.png">
+<meta property="og:url" content="https://bnfsmp.duckdns.org/">
+<meta property="og:type" content="website">
+
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Barney & Friends SMP">
+<meta name="twitter:description" content="Whitelist-only Minecraft SMP server.">
+<meta name="twitter:image" content="https://bnfsmp.duckdns.org/preview.png">
+
+<link rel="icon" href="/favicon.ico">
+
+<link href="https://fonts.cdnfonts.com/css/minecraft-4" rel="stylesheet">
+
+<style>
+body {
+    margin: 0;
+    background-color: #0f0f0f;
+    color: #ffffff;
+    font-family: 'Minecraft', monospace;
+    text-align: center;
+}
+
+@media (min-width: 601px) {
+    body {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 100dvh;
+    }
+}
+
+.container {
+    width: 100%;
+    max-width: 500px;
+    padding: 20px;
+    box-sizing: border-box;
+}
+
+h1 {
+    color: #55ff55;
+    font-size: clamp(24px, 6vw, 36px);
+    margin-bottom: 20px;
+}
+
+.ip {
+    margin: 15px 0;
+    font-size: clamp(14px, 4vw, 18px);
+    word-break: break-word;
+}
+
+button {
+    background: #55ff55;
+    border: none;
+    padding: 12px 20px;
+    font-family: 'Minecraft', monospace;
+    cursor: pointer;
+    margin-top: 10px;
+    font-size: 14px;
+    width: 100%;
+    max-width: 250px;
+}
+
+.status {
+    margin-top: 20px;
+    font-size: clamp(16px, 4vw, 18px);
+}
+
+.players {
+    margin-top: 10px;
+    font-size: clamp(12px, 3.5vw, 14px);
+    color: #aaaaaa;
+}
+
+.info {
+    margin-top: 25px;
+    font-size: clamp(12px, 3.5vw, 14px);
+    color: #cccccc;
+    line-height: 1.5;
+}
+
+.discord {
+    margin-top: 20px;
+    font-size: clamp(12px, 3.5vw, 14px);
+}
+
+.discord a {
+    color: #55aaff;
+    text-decoration: none;
+    word-break: break-all;
+}
+
+.discord a:hover {
+    text-decoration: underline;
+}
+
+#copyMsg {
+    margin-top: 10px;
+    font-size: 14px;
+    color: #55ff55;
+}
+
+@media (max-width: 600px) {
+    .container {
+        padding: 20px 15px;
+    }
+
+    h1 {
+        font-size: 8vw;
+    }
+
+    .ip, .status, .players, .info, .discord {
+        font-size: 4.5vw;
+    }
+
+    button {
+        font-size: 4.5vw;
+        padding: 14px;
+    }
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+    <h1>BARNEY & FRIENDS SMP</h1>
+
+    <div class="ip">
+        IP: <span id="ip">bnfsmp.duckdns.org</span>
+    </div>
+
+    <button id="copyBtn" onclick="copyIP()">COPY IP</button>
+    <div id="copyMsg"></div>
+
+    <div class="status" id="status">CHECKING...</div>
+    <div class="players" id="players"></div>
+
+    <div class="info">
+        ⚠ WHITELIST ONLY SERVER<br>
+        ACCESS BY INVITATION ONLY
+    </div>
+
+    <div class="discord">
+        JOIN DISCORD:<br>
+        <a href="https://discord.gg/MsnyyKTPFy" target="_blank">
+            https://discord.gg/MsnyyKTPFy
+        </a>
+    </div>
+</div>
+
+<script>
+const serverIP = "bnfsmp.duckdns.org";
+
+let lastCheck = 0;
+let cachedData = null;
+
+async function checkServer(force = false) {
+    const now = Date.now();
+
+    if (!force && cachedData && (now - lastCheck < 10000)) {
+        updateUI(cachedData);
+        return;
+    }
+
+    try {
+        const res = await fetch(`https://api.mcsrvstat.us/3/${serverIP}`);
+        const data = await res.json();
+
+        cachedData = data;
+        lastCheck = now;
+
+        updateUI(data);
+    } catch {
+        document.getElementById("status").innerHTML = "⚠ ERROR";
+    }
+}
+
+function updateUI(data) {
+    if (data.online) {
+        document.getElementById("status").innerHTML = "🟢 ONLINE";
+        document.getElementById("players").innerHTML =
+            `${data.players.online}/${data.players.max} PLAYERS`;
+    } else {
+        document.getElementById("status").innerHTML = "🔴 OFFLINE";
+        document.getElementById("players").innerHTML = "";
+    }
+}
+
+setInterval(() => checkServer(true), 30000);
+
+// 🔥 FIXED COPY FUNCTION
+function copyIP() {
+    const ip = serverIP;
+    const msg = document.getElementById("copyMsg");
+    const button = document.getElementById("copyBtn");
+
+    button.innerText = "COPYING...";
+
+    try {
+        if (navigator.clipboard && window.isSecureContext) {
+            navigator.clipboard.writeText(ip).then(success).catch(fallback);
+        } else {
+            fallback();
+        }
+    } catch {
+        fallback();
+    }
+
+    function fallback() {
+        const textarea = document.createElement("textarea");
+        textarea.value = ip;
+        document.body.appendChild(textarea);
+        textarea.select();
+
+        try {
+            document.execCommand("copy");
+            success();
+        } catch {
+            fail();
+        }
+
+        document.body.removeChild(textarea);
+    }
+
+    function success() {
+        msg.innerText = "✔ Copied to clipboard";
+        button.innerText = "COPIED ✔";
+
+        setTimeout(() => {
+            button.innerText = "COPY IP";
+            msg.innerText = "";
+        }, 2000);
+    }
+
+    function fail() {
+        msg.innerText = "❌ Copy failed — copy manually: " + ip;
+        button.innerText = "FAILED ❌";
+
+        setTimeout(() => {
+            button.innerText = "COPY IP";
+        }, 2000);
+    }
+}
+
+checkServer();
+</script>
+
+</body>
+</html>
