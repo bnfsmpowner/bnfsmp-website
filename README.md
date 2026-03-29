@@ -75,3 +75,9 @@ Used to fetch:
 ```bash
 git clone https://github.com/bnfsmpowner/bnfsmp-website.git
 cd bnfsmp-website
+
+## 📄 License
+
+This project is licensed under the **MIT License** — you are free to use, modify, and distribute it.
+
+See the [LICENSE](LICENSE) file for full details.
