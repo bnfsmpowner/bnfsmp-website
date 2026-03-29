@@ -75,6 +75,8 @@ Used to fetch:
 ```bash
 git clone https://github.com/bnfsmpowner/bnfsmp-website.git
 cd bnfsmp-website
+```
+---
 
 ## 📄 License
 
